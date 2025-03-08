@@ -4,24 +4,36 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='MovieAvailability',
+            name="MovieAvailability",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('movie_name', models.CharField(max_length=255)),
-                ('date', models.CharField(max_length=30)),
-                ('time_slot', models.CharField(max_length=20)),
-                ('seat_status', models.CharField(default='1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1', max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("movie_name", models.CharField(max_length=255)),
+                ("date", models.CharField(max_length=30)),
+                ("time_slot", models.CharField(max_length=20)),
+                (
+                    "seat_status",
+                    models.CharField(
+                        default="1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",
+                        max_length=100,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('movie_name', 'date', 'time_slot')},
+                "unique_together": {("movie_name", "date", "time_slot")},
             },
         ),
     ]

@@ -3,12 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import UserData
 from .serializers import UserSerializer
-from django.contrib.auth.hashers import check_password, make_password
 from django.db import transaction
 
 @api_view(['POST'])
 def signup(request):
     try:
+        print("signup request:", request.data)
         with transaction.atomic():
             email = request.data.get('email')
             password = request.data.get('password')
@@ -24,12 +24,10 @@ def signup(request):
                     'msg': 'Email already registered.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Hash password before saving
-            request.data['password'] = make_password(password)
+            # Simply pass the data directly without hashing
             serializer = UserSerializer(data=request.data)
-            
             if serializer.is_valid():
-                serializer.save()
+                user = serializer.save()
                 return Response({
                     'msg': 'User created successfully!'
                 }, status=status.HTTP_201_CREATED)
@@ -41,44 +39,67 @@ def signup(request):
             'msg': f'Error: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# @api_view(['POST'])
+# def login(request):
+#     print("login request:", request.data)
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+
+#     if not email or not password:
+#         return Response({'msg': 'Email and password are required.'}, 
+#                       status=status.HTTP_400_BAD_REQUEST)
+
+#     try:
+#         user = UserData.objects.get(email=email)
+#         print(f"Found user: {email}")
+#         print(f"Stored password in DB: '{user.password}'")
+#         print(f"Password from request: '{password}'")
+#         print(f"Password comparison result: {password == user.password}")
+        
+#         # Direct password comparison
+#         if str(password).strip() == str(user.password).strip():
+#             serializer = UserSerializer(user)
+#             return Response({
+#                 'msg': 'Login successful',
+#                 'user': serializer.data
+#             }, status=status.HTTP_200_OK)
+        
+#         return Response({
+#             'msg': 'Invalid credentials.'
+#         }, status=status.HTTP_401_UNAUTHORIZED)
+            
+#     except UserData.DoesNotExist:
+#         return Response({'msg': 'User not found.'}, 
+#                       status=status.HTTP_404_NOT_FOUND)
+
+
+from django.contrib.auth.hashers import check_password
+
 @api_view(['POST'])
 def login(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if not email or not password:
+        return Response({'msg': 'Email and password are required.'}, 
+                      status=status.HTTP_400_BAD_REQUEST)
+
     try:
-        email = request.data.get('email')
-        password = request.data.get('password')
-
-        print(f"Login attempt for email: {email}")  # Debug log
-
-        if not all([email, password]):
+        user = UserData.objects.get(email=email)
+        print(f"Found user: {email}")
+        print(f"Stored password in DB: '{user.password}'")
+        print(f"Password from request: '{password}'")
+        
+        # Use check_password to verify hashed password
+        if check_password(password, user.password):
+            serializer = UserSerializer(user)
             return Response({
-                'msg': 'Email and password are required.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user = UserData.objects.get(email=email)
-            print(f"User found: {user.name}")  # Debug log
-            return Response({
-                    'msg': 'Login successful',
-                    'user': {
-                        'name': user.name,
-                        'email': user.email,
-                        'data': 'log in Successfully'
-                    }
-                }, status=status.HTTP_200_OK)
+                'msg': 'Login successful',
+                'user': serializer.data
+            }, status=status.HTTP_200_OK)
+        
+        return Response({'msg': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
             
-            print("Password verification failed")  # Debug log
-            return Response({
-                'msg': 'Invalid credentials'
-            }, status=status.HTTP_401_UNAUTHORIZED)
-
-        except UserData.DoesNotExist:
-            print(f"No user found with email: {email}")  # Debug log
-            return Response({
-                'msg': 'User not found'
-            }, status=status.HTTP_404_NOT_FOUND)
-
-    except Exception as e:
-        print(f"Login error: {str(e)}")  # Debug log
-        return Response({
-            'msg': f'Login failed: {str(e)}'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except UserData.DoesNotExist:
+        return Response({'msg': 'User not found.'}, 
+                      status=status.HTTP_404_NOT_FOUND)

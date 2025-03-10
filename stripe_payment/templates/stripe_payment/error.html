@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #001f3f;
+            color: white;
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: rgba(255, 68, 68, 0.1);
+            border-radius: 8px;
+        }
+        .button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Error ❌</h1>
+        <div class="error-message">
+            {{ error_message }}
+        </div>
+        <a href="{{ frontend_url }}/booking" class="button">
+            Try Again
+        </a>
+    </div>
+</body>
+</html>

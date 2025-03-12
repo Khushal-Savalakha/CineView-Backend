@@ -83,6 +83,29 @@ WSGI_APPLICATION = "Backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# Database Configuration
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': env('DB_ENGINE'),
+#         'NAME': env('DB_NAME'),
+#         'USER': env('DB_USER'),
+#         'PASSWORD': env('DB_PASSWORD'),
+#         'HOST': env('DB_HOST'),
+#         'PORT': env('DB_PORT'),
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#             'ssl': {
+#                 'ca': '/path/to/rds-ca-2019-root.pem'
+#             },
+#             'charset': 'utf8mb4',
+#             'connect_timeout': 60,
+#             'auth_plugin': 'mysql_native_password',
+#         },
+#     }
+# }
+
+
 DATABASES = {
     "default": {
         "ENGINE": env("DB_ENGINE"),
@@ -100,6 +123,26 @@ DATABASES = {
     }
 }
 
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cineview',  # Ensure this matches the actual database name
+        'USER': 'khushal',
+        'PASSWORD': '3730(cineview)',  # Ensure this is the correct password
+        'HOST': 'cineview2.crokakqe0r0t.ap-south-1.rds.amazonaws.com',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    }
+}
+
+# Add database retry configuration
+DATABASE_RETRY_ATTEMPTS = 3
+DATABASE_RETRY_DELAY = 1  # seconds
+
+# For better database connection handling
+CONN_MAX_AGE = 60  # 1 minute
+DATABASE_CONNECTION_TIMEOUT = 60
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -171,13 +214,13 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
-# Add these specific origins if needed
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:7777",
-    "http://127.0.0.1:7777",
+# CSRF Settings
+CSRF_EXEMPT_URLS = [
+    r'^stripe/',
 ]
+
+# Frontend URL for redirects
+FRONTEND_URL = env("FRONTEND_URL")
 
 # Add this for better error handling
 REST_FRAMEWORK = {
@@ -191,3 +234,14 @@ REST_FRAMEWORK = {
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SECURE = False
+
+
+# Session settings
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_COOKIE_SECURE = False  # Set to True in production
+
+# Stripe Settings
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
